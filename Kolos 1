@@ -1,0 +1,95 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <cmath>
+
+// Funkcja do wczytywania liczby naturalnej i parzystej od użytkownika
+int wczytajLiczbeN() {
+    int n;
+    do {
+        std::cout << "Podaj liczbe naturalna i parzysta n: ";
+        std::cin >> n;
+
+        if (n <= 0 || n % 2 != 0) {
+            std::cout << "Podano nieprawidlowa liczbe. Sprobuj ponownie." << std::endl;
+        }
+
+    } while (n <= 0 || n % 2 != 0);
+
+    return n;
+}
+
+// Funkcja do wypełniania tablicy liczbami losowymi z przedziału <a, b)
+void wypelnijTablice(double T[], int rozmiar, double a, double b) {
+    // Inicjalizacja generatora liczb losowych
+    std::srand(std::time(0));
+
+    for (int i = 0; i < rozmiar; ++i) {
+        T[i] = std::floor(a + (b - a) * (std::rand() / (RAND_MAX + 1.0)));
+    }
+}
+
+// Funkcja do znajdowania mediany w posortowanej tablicy
+double znajdzMedianę(double arr[], int rozmiar) {
+    int indeks1 = rozmiar / 2 - 1;
+    int indeks2 = rozmiar / 2;
+    return std::floor((arr[indeks1] + arr[indeks2]) / 2.0);
+}
+
+int main() {
+    // Krok 1: Wczytywanie liczby n od użytkownika
+    int n = wczytajLiczbeN();
+
+    // Krok 2: Wypełnianie tablicy T liczbami losowymi z przedziału <a, b)
+    double* T = new double[20]; // dynamiczna alokacja tablicy T
+
+    int liczba;
+    double a, b;
+
+    // Wczytywanie pierwszej liczby jako wartości początkowej dla a i b
+    std::cout << "Podaj liczbe calkowita: ";
+    std::cin >> liczba;
+    a = b = liczba;
+
+    for (int i = 1; i < n; ++i) {
+        std::cout << "Podaj liczbe calkowita: ";
+        std::cin >> liczba;
+
+        // Sprawdzenie warunku zakończenia (2 liczby ujemne z rzędu)
+        if (liczba < 0 && a < 0) {
+            std::cout << "Wprowadzono 2 liczby ujemne z rzedu. Koniec programu." << std::endl;
+            delete[] T; // zwolnienie zaalokowanej pamięci
+            return 0;
+        }
+
+        // Aktualizacja a i b na bieżąco
+        if (liczba < a) {
+            a = liczba;
+        }
+        if (liczba > b) {
+            b = liczba;
+        }
+    }
+
+    // Wypełnianie tablicy T liczbami losowymi z przedziału <a, b)
+    wypelnijTablice(T, 20, a, b);
+
+    // Krok 3: Tworzenie tablicy 3 wskaźników i ustawianie ich na najmniejszy element, medianę i największy element tablicy T
+    double* wskazniki[3];
+
+    // Ustawienie wskaźników na najmniejszy element, medianę i największy element tablicy T
+    wskazniki[0] = std::min_element(T, T + 20);             // wskaźnik na najmniejszy element
+    wskazniki[1] = T + 9;                                  // wskaźnik na medianę (indeks 9 dla 20-elementowej tablicy)
+    wskazniki[2] = std::max_element(T, T + 20);             // wskaźnik na największy element
+
+    // Wyświetlenie wskazanych elementów za pomocą tablicy wskaźników
+    std::cout << "Najmniejszy element: " << *wskazniki[0] << std::endl;
+    std::cout << "Mediana: " << *wskazniki[1] << std::endl;
+    std::cout << "Najwiekszy element: " << *wskazniki[2] << std::endl;
+
+    // Zwolnienie zaalokowanej pamięci
+    delete[] T;
+
+    return 0;
+}
