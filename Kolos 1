@@ -3,41 +3,43 @@
 #include <ctime>
 #include <algorithm>
 
+using namespace std;
+
 int main() {
     char menuChoice;
     const int arraySize = 10;
     char characters[arraySize];
     char* ptr = characters;
 
-    std::cout << "a) Wczytywanie liter\n";
-    std::cout << "b) Wczytywanie kodów znaków\n";
-    std::cout << "c) Losowanie kodów\n";
-    std::cout << "Wybierz opcję: ";
-    std::cin >> menuChoice;
+    cout << "a) Wczytywanie liter\n";
+    cout << "b) Wczytywanie kodów znaków\n";
+    cout << "c) Losowanie kodów\n";
+    cout << "Wybierz opcję: ";
+    cin >> menuChoice;
 
     switch (menuChoice) {
         case 'a':
-            std::cout << "Wprowadź 10 wielkich liter:\n";
+            cout << "Wprowadź 10 wielkich liter:\n";
             for (int i = 0; i < arraySize; ++i) {
                 do {
-                    std::cin >> *ptr;
+                    cin >> *ptr;
                 } while (*ptr < 'A' || *ptr > 'Z');
                 ++ptr;
             }
             break;
 
         case 'b':
-            std::cout << "Wprowadź 10 kodów wielkich liter:\n";
+            cout << "Wprowadź 10 kodów wielkich liter:\n";
             for (int i = 0; i < arraySize; ++i) {
                 do {
-                    std::cin >> *ptr;
+                    cin >> *ptr;
                 } while (*ptr < 65 || *ptr > 90);
                 ++ptr;
             }
             break;
 
         default:
-            std::cout << "Losowanie kodów znaków:\n";
+            cout << "Losowanie kodów znaków:\n";
             srand(static_cast<unsigned>(time(0)));
             for (int i = 0; i < arraySize; ++i) {
                 *ptr = rand() % 26 + 'A';
@@ -48,15 +50,15 @@ int main() {
 
     ptr = characters; // Przywrócenie wskaźnika do początku tablicy
 
-    std::cout << "Zawartość tablicy: " << characters << "\n";
+    cout << "Zawartość tablicy: " << characters << "\n";
 
     // Znalezienie najdalej występującej litery o najmniejszym kodzie
-    char* minPtr = std::min_element(characters, characters + arraySize);
-    std::cout << "Najdalej występująca litera o najmniejszym kodzie: " << *minPtr << " na pozycji: " << (minPtr - characters + 1) << "\n";
+    char* minPtr = min_element(characters, characters + arraySize);
+    cout << "Najdalej występująca litera o najmniejszym kodzie: " << *minPtr << " na pozycji: " << (minPtr - characters + 1) << "\n";
 
     // Znalezienie najbliżej występującej litery o największym kodzie
-    char* maxPtr = std::max_element(characters, characters + arraySize);
-    std::cout << "Najbliżej występująca litera o największym kodzie: " << *maxPtr << " na pozycji: " << (maxPtr - characters + 1) << "\n";
+    char* maxPtr = max_element(characters, characters + arraySize);
+    cout << "Najbliżej występująca litera o największym kodzie: " << *maxPtr << " na pozycji: " << (maxPtr - characters + 1) << "\n";
 
     return 0;
 }
