@@ -1,0 +1,166 @@
+#include <iostream>
+#include <cstring>
+#include <cassert>
+
+using namespace std;
+
+using Tekst = char[50];
+
+enum class Kategoria
+{
+	beletrystyka,
+	poradnik,
+	podrecznik,
+	lektura
+};
+
+struct Autor
+{
+	Tekst imie;
+	Tekst nazwisko;
+};
+
+struct Ksiazka {
+	Tekst tytul;
+	Autor* autor;
+	Kategoria kategoria; //{0 - beletrystyka, 1 - poradnik, 2 - podrecznik, 3 - lektura }
+	uint16_t liczbaStron;
+};
+
+Ksiazka wypelnianie(Ksiazka& ks, const Tekst tytul, Autor* autor, Kategoria kategoria, uint16_t str)
+{
+	strcpy_s(ks.tytul, tytul);
+	ks.autor = autor;
+	ks.kategoria = kategoria;
+	ks.liczbaStron = str;
+	return ks;
+}
+
+ostream& operator<<(ostream& str, Ksiazka ks)
+{
+	str << "Tytuł: " << ks.tytul << endl
+		<< "Autor: " << ks.autor->imie << " " << ks.autor->nazwisko << endl
+		<< "Kategoria: " << (int)ks.kategoria << endl
+		<< "Liczba stron: " << ks.liczbaStron << endl;
+	return str;
+}
+
+// https://en.cppreference.com/w/c/string/byte/strcpy
+// celem działania funkcji jest znalezienie w tablicy kiążek autora książki, która liczy
+//	największą liczbę stron
+// funkcja ma zwracać kategorię książki w postaci typu wyliczeniowego 
+// funkcja ma pobierać tablicę instancji struktury Ksiazka
+// Nazwisko autora powinno przekazywane do funkcji przez referencję
+// wewnątrz funkcji to nazwisko powinno być zmodyfikowane
+Kategoria autorMaksLiczbaStron(Ksiazka* ksiazki, uint16_t n, Autor& autor)
+{
+	uint16_t maksLiczbaStron = 0;
+	Kategoria kategoria = ksiazki[0].kategoria;
+	for (uint16_t i = 0; i < n; i++)
+	{
+		if (ksiazki[i].liczbaStron >= maksLiczbaStron)
+		{
+			maksLiczbaStron = ksiazki[i].liczbaStron;
+
+			assert(ksiazki[i].autor->nazwisko != nullptr);
+			if (ksiazki[i].autor == nullptr)
+			{
+				throw invalid_argument("");
+			}
+
+			autor = *ksiazki[i].autor;
+			kategoria = ksiazki[i].kategoria;
+
+		}
+	}
+	return kategoria;
+}
+
+void test1()
+{
+	cout << "TEST 1:" << endl;
+
+	Autor autorzy[] = {
+		{"Remigiusz", "Mróz"},
+		{"James", "Clear"},
+		{"Robert", "Martin"},
+		{"Krzysztof","Krocz"},
+		{"Władysław","Reymont"},
+		{"Raymond", "Mears"}
+	};
+
+	Ksiazka ks1, ks2, ks3, ks4, ks5, ks6;
+	Ksiazka ksiazki[] = {
+		wypelnianie(ks1, "Operacja Mir", nullptr, Kategoria::beletrystyka, 464),
+		wypelnianie(ks2, "Atomowe nawyki", nullptr, Kategoria::beletrystyka, 272),
+		wypelnianie(ks3, "Czysty Kod", nullptr, Kategoria::beletrystyka, 424),
+		wypelnianie(ks4, "Java.Podręcznik na start", &autorzy[3], Kategoria::beletrystyka, 280),
+		wypelnianie(ks5, "Chłopi", &autorzy[4], Kategoria::poradnik, 710),
+		wypelnianie(ks6, "Podręcznik sztuki przetrwania", &autorzy[5], Kategoria::beletrystyka, 240)
+	};
+
+	try
+	{
+		Autor najlepszyAutor;
+		uint16_t n = sizeof(ksiazki) / sizeof(ksiazki[0]);
+		autorMaksLiczbaStron(ksiazki, n, najlepszyAutor);
+		cerr << "TEST FAILED" << endl;
+	}
+	catch (invalid_argument)
+	{
+		cerr << "TEST OK" << endl;
+	}
+}
+
+void test2()
+{
+	cout << "TEST 2:" << endl;
+
+	Autor autorzy[] = {
+		{"Remigiusz", "Mróz"},
+		{"James", "Clear"},
+		{"Robert", "Martin"},
+		{"Krzysztof","Krocz"},
+		{"Władysław","Reymont"},
+		{"Raymond", "Mears"}
+	};
+
+	Ksiazka ks1, ks2, ks3, ks4, ks5, ks6;
+	Ksiazka ksiazki[] = {
+		wypelnianie(ks1, "Operacja Mir", &autorzy[0], Kategoria::beletrystyka, 464),
+		wypelnianie(ks2, "Atomowe nawyki", &autorzy[1], Kategoria::beletrystyka, 272),
+		wypelnianie(ks3, "Czysty Kod", &autorzy[2], Kategoria::beletrystyka, 424),
+		wypelnianie(ks4, "Java.Podręcznik na start", &autorzy[3], Kategoria::beletrystyka, 280),
+		wypelnianie(ks5, "Chłopi", &autorzy[4], Kategoria::poradnik, 710),
+		wypelnianie(ks6, "Podręcznik sztuki przetrwania", &autorzy[5], Kategoria::beletrystyka, 240)
+	};
+
+	try
+	{
+		Autor najlepszyAutor;
+		Autor oczekiwanyAutor = { "Władysław","Reymont" };
+		uint16_t n = sizeof(ksiazki) / sizeof(ksiazki[0]);
+		autorMaksLiczbaStron(ksiazki, n, najlepszyAutor);
+		if (strcmp(najlepszyAutor.imie, oczekiwanyAutor.imie) != 0)
+		{
+			throw logic_error("");
+		}
+		else if (strcmp(najlepszyAutor.nazwisko, oczekiwanyAutor.nazwisko) != 0)
+		{
+			throw logic_error("");
+		}
+		cerr << "TEST OK" << endl;
+	}
+	catch (logic_error)
+	{
+		cerr << "TEST FAILED" << endl;
+	}
+}
+
+int main()
+{
+	setlocale(LC_ALL, "");
+
+	test1();
+	test2();
+}
